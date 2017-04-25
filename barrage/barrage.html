@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+	/>
+	<meta name="apple-mobile-web-app-capable" content="no" id="fullscreen" />
+
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="keywords" content="请动态填入关键词" />
+	<meta name="description" content="请动态填入页面内容的相关陈述" />
+
+	<link rel="apple-touch-icon" sizes="57x57" href="" />
+	<link rel="apple-touch-icon" sizes="72x72" href="" />
+	<link data-logo="" rel="apple-touch-icon" sizes="114x114" href="" />
+	<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<style>
+		.ellipsis {
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden
+		}
+		
+		.bs-example {
+			padding: 10px;
+			border: 1px solid #999;
+			margin: 2px;
+		}
+		
+		.bs-example span {
+			font-size: 10px;
+			color: red;
+		}
+		
+		.layer_barrage {
+			position: fixed;
+			bottom: 135px;
+			width: 100%;
+		}
+		
+		.layer_barrage ul {
+			display: box;
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-box;
+			margin-bottom: 20px;
+		}
+		
+		.layer_barrage ul li {
+			transform: translateX(0px)
+		}
+		
+		.layer_barrage ul:nth-child(even) {
+			padding-left: 20px;
+		}
+		
+		.layer_barrage li {
+			font-size: 12px;
+			margin-right: 28px;
+			padding-right: 30px;
+			color: #fff;
+			display: block;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			height: 22px;
+			line-height: 22px;
+			background: rgba(0, 0, 0, 0.68);
+			border-radius: 11px;
+			transform: translateX(0px);
+		}
+		
+		.layer_barrage li span {
+			display: inline-block;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
+		
+		.layer_barrage img {
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			float: left;
+			margin: 2px 6px 0 2px;
+		}
+		
+		.layer_barrage .active {
+			background: rgba(20, 185, 148, 0.9);
+		}
+		
+		.layer_barrage .reward {
+			position: absolute;
+			right: 50px;
+			bottom: 58px;
+		}
+		
+		.layer_barrage .reward img {
+			width: 40px;
+			height: auto;
+		}
+	</style>
+	<title>弹幕Demo</title>
+</head>
+
+<body>
+	<div class="bs-example">
+		<div class="form-group">
+			<label for="exampleInputEmail1">屏幕内滑动时间(s eg:3)<span>(不填按屏幕宽度默认计算)</span></label>
+			<input type="text" class="form-control j_init_time" id="exampleInputEmail1">
+		</div>
+		<div class="form-group">
+			<label for="exampleInputPassword1">每批次间隔时间(ms eg:2000)</label>
+			<input type="text" class="form-control j_interval_time" id="exampleInputPassword1">
+		</div>
+		<div class="form-group">
+			<label for="exampleInputPassword1">弹幕所分行数(eg:5)</label>
+			<input type="text" class="form-control j_line" id="exampleInputPassword1">
+		</div>
+		<div class="form-group">
+			<label for="exampleInputPassword1">弹幕限定宽度(px eg:100)</label>
+			<input type="text" class="form-control j_liWidth" id="exampleInputPassword1">
+		</div>
+		<button type="submit" class="btn btn-default j_play_barrage">播放弹幕</button>
+		<span>弹幕将按设置播放，</span>
+	</div>
+	<div class="bs-example">
+		<div class="form-group">
+			<label for="exampleInputPassword1">填写内容进入弹幕(eg:说的好！)</label>
+			<input type="text" class="form-control j_bcontent" id="exampleInputPassword1">
+		</div>
+		<button type="submit" class="btn btn-default j_insert_barrage">插入弹幕</button>
+	</div>
+	<section class="layer_barrage j_barrage ">
+		<ul>
+		</ul>
+	</section>
+	<script src="https://cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+	<script>
+		var config = {
+			init_time: '',
+			interval_time: '',
+			line: '',
+			liWidth: '',
+		}
+		function playBarrage() {
+			$('.j_play_barrage').on('click', function () {
+				config.init_time = $('.j_init_time').val();
+				config.interval_time = $('.j_interval_time').val();
+				config.line = $('.j_line').val();
+				config.liWidth = $('.j_liWidth').val();
+				$('.j_barrage').find('ul').children().remove();
+				if (aqueue.length == 0) {
+					aqueue = bqueue;
+					bqueue = [];
+				}
+				console.log(aqueue);
+				console.log(bqueue);
+				$('.j_barrage').find('ul').children().remove();
+				Barrage.danMuPause();
+
+				Barrage.danMuInit(aqueue);
+			})
+			$('.j_insert_barrage').on('click', function () {
+				var content = $('.j_bcontent').val();
+				var data = { content: content };
+				Barrage.danMuInsert(aqueue, data);
+			})
+		}
+
+		var aqueue = [
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '【夸雷斯马】，接我空翻360度接转体720度的双膝跪地！' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '空耳好评' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '无畏的事情' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '金钟大不是我男人吗，哦，坂本也是(｢･ω･)｢嘿' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '扳本OS：送上来的装逼机会啊！' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '女主我只认8823' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '牛顿不会诈尸，不要胡说，坂本做得都是有物理原理的可以实现' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '又换发了' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '葡萄牙必胜！' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '盲降成功aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '可怜你赢不过坂本大佬' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '关键是他不仅不穿衣服，而且居然还不换胖次ヾ(｡｀Д´｡)ﾉ彡' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '辣眼睛啊喂' },
+			{ 'img': 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif', 'content': '我们未能穿透敌人的装甲' }
+
+		];
+		var bqueue = [
+
+		]
+
+		var Barrage = {
+			left: document.documentElement.clientWidth,
+			translateX: document.documentElement.clientWidth || 0,
+			fontSize: '12',
+			color: '#000',
+			line: '',//弹幕所分行数
+			top: [],//弹幕分行时绝对定位top值
+			init_time: '',//弹幕屏内滑动时间
+			interval_time: '',//弹幕每批出现间距时间
+			timeCacluate: '',//弹幕暂停
+			liWidth: '',//强制设置liwidth
+			danMuInit: function (data) {
+				var self = this;
+				self.top = [];
+				self.line = parseInt(config.line) || 3;
+				self.init_time = parseInt(config.init_time) || document.documentElement.clientWidth / 50;
+				self.interval_time = parseInt(config.interval_time) || Math.min(self.init_time * 1000 / 2, 4200);
+				for (var i = 0; i < self.line; i++) {
+					self.top.push('' + i * 30 + 'px');
+				};
+				self.liWidth = parseInt(config.liWidth);
+
+				self.danMuPlay(aqueue);
+			},
+			danMuPlay: function (data) {
+				if (typeof (data) == 'undefined') { return; }
+				var self = this;
+				var strLength = 0;
+				var strWidth = 0;
+				var add_time = 0;//与init_time共同构成行走时间
+
+				self.timeCacluate = setInterval(function () {
+					var arr = [];
+					for (var x = 0; x < self.top.length && data.length > 0; x++) {
+						arr.push('<li data-type="' + data[0].type + '" data-mid="' + data[0].source_id + '" style="position: absolute;left:' + self.left + 'px;top:' + self.top[x] + ';display: inline-block;white-space: pre;">');
+						arr.push('<img src="' + data[0].img + '" alt="" />');
+						arr.push('<span>' + data[0].content + '</span>');
+						arr.push('</li>');
+						//重复播放时数据填充
+						var t = data.shift();
+						bqueue.push(t);
+
+					};
+					$('.j_barrage').find('ul').append(arr.join(''));
+					$('.j_barrage').find('ul span').css('width', '' + self.liWidth + 'px');
+					var liWidth = 0;//此li用于非定宽时存储每个li宽度
+					var liLength = $('.j_barrage').find('ul').children().length;
+					var j = 0;
+					while (j < liLength) {
+						if ($('.j_barrage').find('li').eq(j).hasClass('j_show')) {
+							j++;
+							continue;
+						}
+						for (k = 0; k < self.top.length; k++) {
+							var item = $('.j_barrage').find('li').eq(j);
+							liWidth = item.width();
+							add_time = liWidth / 500;
+							item.css({
+								// 'transform':'translateX(-'+(self.left+liWidth+70)+'px)',
+								'-webkit-transform': 'translateX(-' + (self.left + liWidth + 70) + 'px)',
+								// 'transition':'transform '+(self.init_time+add_time)+'s linear',
+								'-webkit-transition': '-webkit-transform ' + (self.init_time + add_time) + 's linear'
+							});
+							item.addClass('j_show');
+							j++;
+						}
+					}
+					if (data.length == 0) {
+						self.danMuPause();
+					}
+				}, self.interval_time)
+
+
+				self.danMuClear();
+
+			},
+			danMuInsert: function (queue, data) {
+				var self = this;
+				var img = 'http://tva1.sinaimg.cn/default/images/default_avatar_male_50.gif';
+				setTimeout(function () {
+					queue.unshift({ 'img': img, 'content': data.content });
+					if (queue.data == '') {
+
+						self.danMuPlay(queue);
+					}
+
+				}, 2000);
+			},
+			danMuClear: function () {
+				var clearLi = setInterval(function () {
+					var childrenLi = $('.j_barrage').find('ul').children();
+					var childrenNum = childrenLi.length;
+					for (var i = 0; i < childrenNum; i++) {
+						var item = childrenLi.eq(i);
+						if (item.offset().left + item.width() < -10) {
+							console.log('remove');
+							childrenLi.eq(i).remove();
+						}
+					}
+				}, 1000)
+			},
+			danMuPause: function () {
+				var self = this;
+				clearInterval(self.timeCacluate);
+			}
+		};
+		Barrage.danMuInit(aqueue);
+		playBarrage();
+	</script>
+</body>
+
+</html>
