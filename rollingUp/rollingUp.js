@@ -3,7 +3,7 @@
  * @Author: FengZihao 
  * @Date: 2017-04-19 09:38:17 
  * @Last Modified by: zihao5@staff.sina.com.cn
- * @Last Modified time: 2017-04-24 15:55:12
+ * @Last Modified time: 2017-05-05 19:19:17
  */
 
 ; (function (win, doc) {
@@ -26,7 +26,7 @@
         this.ele = document.querySelector(scrollName);   // 滚动列表
         var ele = this.ele;
         var child = ele.children;
-        var childNum = child.length;
+        var childNum = child.length;                    // 原始节点数量
         for (var i = 0; i < this.num; i++) { // 添加额外节点 实现效果上无缝滚动
             var j = i;                  // 防止显示的列表数量比列表总数高
             if (j > childNum - 1) {
@@ -46,15 +46,16 @@
         ele.style.WebkitTransition = 'transform 10ms linear';
         ele.style.OTransition = 'transform 10ms linear';
         this.distance = child[0].offsetHeight;  // 每次向上滑动的距离
-        this.distanceAll = this.distance;   // 向上滑动的总距离
+        this.distanceAll = 0;   // 向上滑动的总距离
         this.childNum = childNum;
-        this.endLine = this.distance * (childNum + 1);
+        this.endLine = this.distance * childNum;
     }
 
     RollingUp.prototype.begin = function () {
         if (this.fn) {
             this.fn();
         }
+        this.distanceAll = this.distance + this.distanceAll;
         this.ele.style.transform = 'translate3d(0,-' + this.distanceAll + 'px,0)';
         this.ele.style.WebkitTransform = 'translate3d(0,-' + this.distanceAll + 'px,0)';
         this.ele.style.MozTransform = 'translate3d(0,-' + this.distanceAll + 'px,0)';
@@ -62,7 +63,6 @@
         this.ele.style.WebkitTransitionDuration = this.animationTime + 'ms';
         this.ele.style.MozTransitionDuration = this.animationTime + 'ms';
 
-        this.distanceAll = this.distance + this.distanceAll;
         if (this.distanceAll === this.endLine) {
             // 滑回顶点
             var self = this;
@@ -73,7 +73,7 @@
                 self.ele.style.transform = 'translate3d(0,-' + 0 + 'px,0)';
                 self.ele.style.WebkitTransform = 'translate3d(0,-' + 0 + 'px,0)';
                 self.ele.style.MozTransform = 'translate3d(0,-' + 0 + 'px,0)';
-                self.distanceAll = self.distance;
+                self.distanceAll = 0;
                 if (this.fn) {
                     this.fn();
                 }
@@ -83,7 +83,7 @@
 
     RollingUp.prototype.getCurrentEle = function () {
         var currentNum = this.distanceAll / this.distance;
-        return currentNum > this.childNum ? currentNum - this.childNum - 1 : currentNum - 1;
+        return currentNum > this.childNum - 1 ? currentNum - this.childNum : currentNum;
     }
 
     // 判断浏览器状态 未被激活时停止定时器 防止切换回来时一次滑动过多距离
@@ -113,6 +113,30 @@
         }
     }
 
+	/**
+ 	* 屏幕尺寸变化 自动调整移动距离
+    * 如果与定时器设定的自动改变位置同时执行 将不会触发transitionEnd事件 如有需要需手动触发
+ 	*/
+    RollingUp.prototype.screenChange = function (e) {
+        var oldDistance = this.distance;
+        var oldDistanceAll = this.distanceAll;
+        var oldEndLine = this.endLine;
+
+        var endLineScale = oldEndLine / oldDistance;
+        var distanceAllScale = oldDistanceAll / oldDistance;
+
+        this.distance = this.ele.children[0].offsetHeight;
+        this.distanceAll = this.distance * distanceAllScale;
+        this.endLine = this.distance * endLineScale;
+
+        this.ele.style.transform = 'translate3d(0,-' + this.distanceAll + 'px,0)';
+        this.ele.style.WebkitTransform = 'translate3d(0,-' + this.distanceAll + 'px,0)';
+        this.ele.style.MozTransform = 'translate3d(0,-' + this.distanceAll + 'px,0)';
+        this.ele.style.transitionDuration = '0ms';
+        this.ele.style.WebkitTransitionDuration = '0ms';
+        this.ele.style.MozTransitionDuration = '0ms';
+    }
+
     RollingUp.prototype.clean = function () {
         var appendNode = this.ele.querySelectorAll('.j_rolling_up_append');
         for (var i = 0; i < this.num; i++) {
@@ -121,5 +145,6 @@
         this.stopAndBegin(false);
     }
 
-    window.RollingUp = RollingUp;
+    win.RollingUp = RollingUp;
+
 })(window, document);
