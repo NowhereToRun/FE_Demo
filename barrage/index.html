@@ -16,26 +16,12 @@
 	<link data-logo="" rel="apple-touch-icon" sizes="114x114" href="" />
 	<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<style>
-		.ellipsis {
-			white-space: nowrap;
-			text-overflow: ellipsis;
-			overflow: hidden
-		}
-		
-		.bs-example {
-			padding: 10px;
-			border: 1px solid #999;
-			margin: 2px;
-		}
-		
-		.bs-example span {
-			font-size: 10px;
-			color: red;
-		}
 		.layer_barrage {
 			position: relative;
 			width: 100%;
 		}
+
+		/*弹幕样式*/
 		.barrageUl li {
 			font-size: 12px;
 			padding: 0 15px;
@@ -43,10 +29,9 @@
 			display: block;
 			white-space: nowrap;
 			text-overflow: ellipsis;
-			height: 22px;
-			line-height: 22px;
-			background: rgba(0, 0, 0, 0.68);
+			background: rgba(0, 0, 0, 0.5);
 			border-radius: 11px;
+			transform: translate3d(1px, 0, 0);
 		}
 	</style>
 	<title>弹幕Demo</title>
@@ -68,48 +53,54 @@
 	<section class="layer_barrage" style="height:300px">
 
 	</section>
-	<div style="background:#999; height:500px;"></div>
 	<script src="https://cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
-	<script src="./barrage.js"></script>
+	<script src="./barrage_zepto.js"></script>
 	<script>
-		var aqueue = [
-			{ 'color': 'red', 'content': '【夸雷斯马】，接我空翻360度接转体720度的双膝跪地！' },
-			{ 'color': 'blue', 'content': '空耳好评' },
-			{ 'color': '', 'content': '无畏的事情' },
-			{ 'color': 'gold', 'content': '金钟大不是我男人吗，哦，坂本也是(｢･ω･)｢嘿' },
-			{ 'color': '', 'content': '扳本OS：送上来的装逼机会啊！' },
-			{ 'color': '', 'content': '女主我只认8823' },
-			{ 'color': '', 'content': '牛顿不会诈尸，不要胡说，坂本做得都是有物理原理的可以实现' },
-			{ 'color': '', 'content': '又换发了' },
-			{ 'color': '', 'content': '葡萄牙必胜！' },
-			{ 'color': '', 'content': '盲降成功' },
-			{ 'color': '', 'content': '可怜你赢不过坂本大佬' },
-			{ 'color': '', 'content': '关键是他不仅不穿衣服，而且居然还不换胖次ヾ(｡｀Д´｡)ﾉ彡' },
-			{ 'color': '', 'content': '辣眼睛啊喂' },
-			{ 'color': '', 'content': '我们未能穿透敌人的装甲' }
-
-		];
-		var danMuConfig = {
-			rows: 5,
-			showTime: 7000,
-			intervalTime: 4000,
-			lineSpace: 25,
-			randomMax: 2000
-		}
-		var danMu = new DanMu('.layer_barrage', 'barrageUl', danMuConfig);
-		danMu.start(aqueue, true);
-		$('.j_pause_barrage').on('click', function () {
-			danMu.pause();
+		$('.j_insert_barrage').on('click', function () {
+			var text = $('.j_bcontent').val();
+			console.log(text);
+			danMu.insert(text);
 		});
+
 		$('.j_stop_barrage').on('click', function () {
 			danMu.stop();
+			$('.j_start_barrage').removeAttr('disabled');
+			$('.j_stop_barrage').attr('disabled', 'disabled');
 		});
+
 		$('.j_start_barrage').on('click', function () {
-			danMu.start();
-		});
-		$('.j_insert_barrage').on('click', function () {
-			danMu.insert($('.j_bcontent').val());
-		});
+			danMu.start(danMuLib, true);
+			$('.j_start_barrage').attr('disabled', 'disabled');
+			$('.j_stop_barrage').removeAttr('disabled');
+		})
+
+
+		var danMuConfig = {
+			rows: 5,
+			showTime: 5000,
+			intervalTime: 4000,
+			lineSpace: 24,
+			randomMax: 2000,
+			layerClass: 'barrageUl',
+			parent: '.layer_barrage'
+		}
+
+		var danMuLib = [
+			{ 'content': '厉害了，神评论！' },
+			{ 'content': '火钳刘明' },
+			{ 'content': '什么鬼' },
+			{ 'content': '心疼二楼30秒' },
+			{ 'content': '老哥很稳~' },
+			{ 'content': '一本正经的胡说八道' },
+			{ 'content': '6666666666' },
+			{ 'content': '高能预警' },
+			{ 'content': '滴，老年卡' },
+			{ 'content': '2333333' },
+			{ 'content': '老司机开车' }
+		]
+		$('.j_start_barrage').attr('disabled', 'disabled');
+		var danMu = new DanMu(danMuConfig);
+		danMu.start(danMuLib, true);
 	</script>
 </body>
 

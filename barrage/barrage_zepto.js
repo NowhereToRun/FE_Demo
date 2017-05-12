@@ -2,7 +2,7 @@
  * @Author: FengZihao 
  * @Date: 2017-04-11 15:19:24 
  * @Last Modified by: zihao5@staff.sina.com.cn
- * @Last Modified time: 2017-04-20 18:20:47
+ * @Last Modified time: 2017-05-12 17:35:12
  * 
  * 弹幕组件，依赖zepto或jquery
  */
@@ -82,7 +82,7 @@
         clearInterval(this.timePause);
         setTimeout(function () {
             self.hide();
-        }, this.intervalTime)
+        }, this.intervalTime + this.randomMax)
         return this;
     };
 
@@ -167,6 +167,5 @@
         }
         this.layer.css({ position: 'absolute', left: 0, top: 0 });
     };
-
     window.DanMu = DanMu;
 })(window, document);
