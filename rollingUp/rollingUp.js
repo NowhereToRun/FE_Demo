@@ -3,7 +3,7 @@
  * @Author: FengZihao 
  * @Date: 2017-04-19 09:38:17 
  * @Last Modified by: zihao5@staff.sina.com.cn
- * @Last Modified time: 2017-05-05 19:19:17
+ * @Last Modified time: 2017-06-06 17:01:55
  */
 
 ; (function (win, doc) {
@@ -27,6 +27,10 @@
         var ele = this.ele;
         var child = ele.children;
         var childNum = child.length;                    // 原始节点数量
+        if (childNum === 0) {
+            console.log('RollingUp 初始化失败，请检查列表是否为空');
+            return;
+        }
         for (var i = 0; i < this.num; i++) { // 添加额外节点 实现效果上无缝滚动
             var j = i;                  // 防止显示的列表数量比列表总数高
             if (j > childNum - 1) {
